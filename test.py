@@ -198,8 +198,6 @@ def analyse_aggregate_feature(ticker):
       
 #HOW TO CALL FUNCTION 
 ticker_list = ['ACB', 'TCB', 'TPB', 'VCB', 'BID', 'VPB', 'VIB'] #create list with tickers to examine 
-
 for t in ticker_list: #calling each function of each ticker, by looking through ticker list 
-    analyse_single_feature(t) 
-    analyse_aggregate_feature(t)
-
+    analyse_aggregate_feature(t) 
+    analyse_single_feature(t)
