@@ -16,7 +16,7 @@ max_score = pd.DataFrame()
 # FUNCTION 1: LEAST-SQUARED LINEAR MODEL FOR SINGLE FEATURE 
 def analyse_single_feature(ticker): 
     # ------ CLEANING AND PROCESSING DATA
-    df = tcbs_market.stock_prices([ticker], period=2000) #getting data from tcbs_market databse 
+    df = tcbs_market.stock_prices([ticker], period=2000) #getting data from tcbs_market databse / replaceable with data from yfinance
     df = df.rename(columns = {'openPriceAdjusted': 'Open', 'closePriceAdjusted':'Price'}) #change column name for convenience
     df['dateReport'] = pd.to_datetime(df['dateReport']) #setting timeseries 
 
@@ -87,7 +87,7 @@ def analyse_single_feature(ticker):
         features = result[[f]] 
         outcomes = result[['Ri (Max/Min)']]
 
-        x_train, x_test, y_train, y_test = train_test_split(outcomes, features, train_size = 0.7) #dividing test/train bins 
+        x_train, x_test, y_train, y_test = train_test_split(features, outcomes, train_size = 0.7) #dividing test/train bins 
 
         model = LinearRegression() #create model 
         model.fit(x_train, y_train) #fit model 
@@ -172,7 +172,7 @@ def analyse_aggregate_feature(ticker):
     features = result[['Net_Profit', 'Total_Operating_Income']] #except of looping through, aggregate features into list 
     outcomes = result[['Ri (Max/Min)']]
 
-    x_train, x_test, y_train, y_test = train_test_split(outcomes, features, train_size = 0.7) 
+    x_train, x_test, y_train, y_test = train_test_split(features, outcomes, train_size = 0.7) 
 
     model = LinearRegression() 
     model.fit(x_train, y_train) 
