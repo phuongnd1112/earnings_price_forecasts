@@ -11,6 +11,8 @@ import tcdata.stock.llv.ticker as tcbs_ticker
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 
+max_score = pd.DataFrame() 
+
 # FUNCTION 1: LEAST-SQUARED LINEAR MODEL FOR SINGLE FEATURE 
 def analyse_single_feature(ticker): 
     # ------ CLEANING AND PROCESSING DATA
@@ -39,7 +41,7 @@ def analyse_single_feature(ticker):
         for q in quarter: #looping through the quarter list 
             df_2 = df_1.loc[df['quarter'] == q, :] #slicing data (alr sliced by year) by quarter 
             if df_2.empty: #some DF might be empty, so print 0 instead of further processing 
-                print(0)
+                pass
             else: #for dataframe with data 
                 x_pos = df_2['Price'].argmax() - df_2['Price'].argmin() #finding delta x of maxima and minima 
                 x_positions.append(1 if x_pos > 0 else -1) #signalling positions with -1 or 1 
@@ -76,6 +78,11 @@ def analyse_single_feature(ticker):
 
     # ------ TRAINING MODEL 
     features_list = ['Net_Profit', 'Total_Operating_Income'] #because we are training single feature models, create features list 
+
+    feature_list = [] 
+    score_list = [] 
+    ticker_list = [] 
+
     for f in features_list: #looping through each feature 
         features = result[[f]] 
         outcomes = result[['Ri (Max/Min)']]
@@ -87,9 +94,18 @@ def analyse_single_feature(ticker):
         score = model.score(x_train, y_train) #score train data
         score_test = model.score(x_test, y_test) #score test data 
 
+        total = pd.DataFrame() 
+        ticker_list.append(ticker) 
+        total['ticker'] = ticker_list 
         print(ticker) 
-        print(score) #see this for R^2 Score for train dataset 
-        print(f) #this will indicate which FA feature the R^2 score was for 
+        feature_list.append(f) 
+        total['feature'] = feature_list
+        print(f)
+        score_list.append(score) 
+        total['score'] = score_list
+        print(score)
+
+    print(total) 
 
 # FUNCTION 2: LEAST-SQUARED LINEAR MODEL FOR MULTIPLE FEATURES (DOCUMENTATION SAME AS ABOVE, EXCEPT FOR WHEN TRAINING MODEL) 
 def analyse_aggregate_feature(ticker): 
@@ -118,7 +134,7 @@ def analyse_aggregate_feature(ticker):
         for q in quarter: 
             df_2 = df_1.loc[df['quarter'] == q, :]
             if df_2.empty: 
-                print(0)
+                pass
             else: 
                 x_pos = df_2['Price'].argmax() - df_2['Price'].argmin() 
                 x_positions.append(1 if x_pos > 0 else -1)
@@ -162,13 +178,28 @@ def analyse_aggregate_feature(ticker):
     model.fit(x_train, y_train) 
     score = model.score(x_train, y_train) 
     score_test = model.score(x_test, y_test)
-
+    
     print(ticker) 
     print(score) 
-    print(f)
+
+    ticker_list = [] 
+    score_list = []
+
+    total = pd.DataFrame() 
+    ticker_list.append(ticker) 
+    total['ticker'] = ticker_list 
+    print(ticker) 
+    score_list.append(score) 
+    total['score'] = score_list
+    print(score)
+
+    print(total) 
+
       
 #HOW TO CALL FUNCTION 
 ticker_list = ['ACB', 'TCB', 'TPB', 'VCB', 'BID', 'VPB', 'VIB'] #create list with tickers to examine 
+
 for t in ticker_list: #calling each function of each ticker, by looking through ticker list 
-    analyse_aggregate_feature(t) 
-    analyse_single_feature(t)
+    analyse_single_feature(t) 
+    analyse_aggregate_feature(t)
+
