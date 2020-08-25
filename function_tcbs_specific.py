@@ -137,4 +137,4 @@ for t in ticker_list: #calling each function of each ticker, by looking through 
 max_score['ticker'] = ticker_sample #indicating list & column location 
 max_score['feature'] = feature_sample 
 max_score['score'] = score_sample 
-max_score.to_csv('/Users/phuongd/Desktop/file.csv') 
+max_score.to_csv(local+'/file.csv') 
