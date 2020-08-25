@@ -71,21 +71,20 @@ def analyse_single_feature(ticker):
     result = result.sort_values(['Year', 'Quarter'], ascending = True) #sort time for better visualisation and fitting into income statement data 
 
     # ------ IMPORT FA DATA  
-    fa_df = tcbs.finance_income_statement(ticker, period_type = 0, period = 40) #call data from database
+    fa_df = df = tcbs_ticker.ratio(ticker, period_type=0, period=40)  #call data from database
     fa_df = fa_df.rename(columns = {'YearReport': 'Year', 'LengthReport':'Quarter'}) #changing column names for convenience 
     fa_df = fa_df.sort_values(['Year', 'Quarter'], ascending = True) #sort time for better visualisation and fitting into income statement data
 
-    
-    fa_list = ['Total_Operating_Income', 'Net_Profit'] #creating a list for the FA numerics we want to examine 
+    fa_list = ['revenue', 'operationProfit', 'netProfit', 'provision', 'creditGrowth', 'cash', 'liability', 'equity', 'asset', 'customerCredit', 'priceToEarning', 'priceToBook', 'roe', 'bookValuePerShare', 'earningPerShare', 'profitMargin', 'provisionOnBadDebt', 'badDebtPercentage', 'loanOnDeposit', 'nonInterestOnToi'] #creating a list for the FA numerics we want to examine 
 
     for item in fa_list: 
         result[item] = (fa_df[item] - fa_df[item].shift(4)) / fa_df[item].shift(4) *100 #finding the YoY differences between each item of FA 
 
-    result = result.dropna() 
-    #print(result)
+    result.dropna(inplace=True) 
+    print(result.head())
     
     # ------ TRAINING MODEL 
-    features_list = ['Net_Profit', 'Total_Operating_Income'] #because we are training single feature models, create features list 
+    features_list = ['revenue', 'operationProfit', 'netProfit', 'provision', 'creditGrowth', 'cash', 'liability', 'equity', 'asset', 'customerCredit', 'priceToEarning', 'priceToBook', 'roe', 'bookValuePerShare', 'earningPerShare', 'profitMargin', 'provisionOnBadDebt', 'badDebtPercentage', 'loanOnDeposit', 'nonInterestOnToi'] #because we are training single feature models, create features list 
 
     feature_list = [] 
     score_list = [] 
@@ -101,7 +100,6 @@ def analyse_single_feature(ticker):
         model.fit(x_train, y_train) #fit model 
         predictions = model.predict(x_train)
         score = model.score(x_train, y_train) #score train data
-        score_test = model.score(x_test, y_test) #score test data 
 
         sns.set() 
         plt.figure(figsize = [10,10])
@@ -132,7 +130,7 @@ def analyse_single_feature(ticker):
     #print(dataframe) 
 
 #HOW TO CALL FUNCTION 
-ticker_list = ['ACB', 'TCB', 'TPB', 'VCB', 'BID', 'VPB', 'VIB', 'MBB', 'CTG', 'SHB', 'STB', 'HDB', 'LPB'] #create list with tickers to examine 
+ticker_list = ['ACB','TPB', 'VCB', 'BID', 'VIB', 'MBB', 'CTG', 'SHB', 'STB', 'HDB', 'LPB'] #create list with tickers to examine 
 for t in ticker_list: #calling each function of each ticker, by looking through ticker list 
     analyse_single_feature(t) 
 
