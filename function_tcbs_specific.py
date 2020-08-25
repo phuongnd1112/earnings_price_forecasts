@@ -11,6 +11,7 @@ import tcdata.stock.llv.ticker as tcbs_ticker
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 
+local = input('Path to save figures? ')
 #DataFrame displaying max R2 for each single feature
 max_score = pd.DataFrame() #create DataFrame
 ticker_sample = []  #empty lists to store variables 
@@ -94,12 +95,22 @@ def analyse_single_feature(ticker):
         features = result[[f]] 
         outcomes = result[['Ri (Max/Min)']]
 
-        x_train, x_test, y_train, y_test = train_test_split(features, outcomes, train_size = 0.9) #dividing test/train bins 
+        x_train, x_test, y_train, y_test = train_test_split(features, outcomes, train_size = 0.8, shuffle=False) #dividing test/train bins 
 
         model = LinearRegression() #create model 
         model.fit(x_train, y_train) #fit model 
+        predictions = model.predict(x_train)
         score = model.score(x_train, y_train) #score train data
         score_test = model.score(x_test, y_test) #score test data 
+
+        sns.set() 
+        plt.figure(figsize = [10,10])
+        plt.scatter(x_train, y_train, color='darkcyan', alpha=0.4) 
+        plt.plot(x_train, predictions, color='darkorange')
+        plt.title('R^2 of ' + f + ' for ' + ticker)
+        plt.xlabel('% Δ ' + f + ' YoY')
+        plt.ylabel('Maximum Stocks Potential/Quarter')
+        plt.savefig(local+"/"+f+ticker+'.png')
 
         total = pd.DataFrame() 
         ticker_list.append(ticker) 
@@ -120,106 +131,12 @@ def analyse_single_feature(ticker):
     score_sample.append(list_result[0][2])
     #print(dataframe) 
 
-# FUNCTION 2: LEAST-SQUARED LINEAR MODEL FOR MULTIPLE FEATURES (DOCUMENTATION SAME AS ABOVE, EXCEPT FOR WHEN TRAINING MODEL) 
-def analyse_aggregate_feature(ticker): 
-    # ------ CLEANING AND PROCESSING DATA
-    df = tcbs_market.stock_prices([ticker], period=2000) 
-    df = df.rename(columns = {'openPriceAdjusted': 'Open', 'closePriceAdjusted':'Price'}) 
-    df['dateReport'] = pd.to_datetime(df['dateReport'])
-
-    df.reset_index(inplace = True)
-
-    df['year'] = pd.DatetimeIndex(df['dateReport']).year
-    df['quarter'] = pd.DatetimeIndex(df['dateReport']).quarter
-
-    df = df.sort_values('dateReport', ascending=True) 
-
-    years = [2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020] 
-    quarter = [1,2,3,4] 
-
-    year_list = [] 
-    quarter_list = []
-    r_list = []
-    x_positions = [] 
-
-    for y in years: 
-        df_1 = df.loc[df['year'] == y, :] 
-        for q in quarter: 
-            df_2 = df_1.loc[df['quarter'] == q, :]
-            if df_2.empty: 
-                pass
-            else: 
-                x_pos = df_2['Price'].argmax() - df_2['Price'].argmin() 
-                x_positions.append(1 if x_pos > 0 else -1)
-                if x_pos > 0:
-                    r_i = df_2['Price'].max() / df_2['Price'].min() - 1
-                    r_list.append(r_i)
-                    year_list.append(y) 
-                    quarter_list.append(q)
-                else:
-                    r_i = df_2['Price'].min() / df_2['Price'].max() - 1
-                    r_list.append(r_i) 
-                    year_list.append(y) 
-                    quarter_list.append(q)
-                
-
-    result = pd.DataFrame() 
-    result['Year'] = year_list 
-    result['Quarter'] = quarter_list 
-    result['Ri (Max/Min)'] = r_list
-    result['ArgMax/Min Position'] = x_positions
-    result = result.sort_values(['Year', 'Quarter'], ascending = True) 
-
-    # ------ FA Analysis 
-    fa_df = tcbs.finance_income_statement(ticker, period_type = 0, period = 40)
-    fa_df = fa_df.rename(columns = {'YearReport': 'Year', 'LengthReport':'Quarter'})
-    fa_df = fa_df.sort_values(['Year', 'Quarter'], ascending = True) 
-
-
-    fa_list = ['Total_Operating_Income', 'Net_Profit']
-
-    for item in fa_list: 
-        result[item] = (fa_df[item].shift(0) - fa_df[item].shift(4)) / fa_df[item].shift(4) *100 
-
-    result = result.dropna() 
-    #print(result) 
-
-    # ------ TRAINING MODEL 
-    features = result[['Net_Profit', 'Total_Operating_Income']] #except of looping through, aggregate features into list 
-    outcomes = result[['Ri (Max/Min)']]
-
-    x_train, x_test, y_train, y_test = train_test_split(features, outcomes, train_size = 0.7) 
-
-    model = LinearRegression() 
-    model.fit(x_train, y_train) 
-    score = model.score(x_train, y_train) 
-    score_test = model.score(x_test, y_test)
-    
-    print(ticker) 
-    print(score) 
-
-    ticker_list = [] 
-    score_list = []
-
-    total = pd.DataFrame() 
-    ticker_list.append(ticker) 
-    total['ticker'] = ticker_list 
-    print(ticker) 
-    score_list.append(score) 
-    total['score'] = score_list
-    print(score)
-
-    print(total) 
-
-      
 #HOW TO CALL FUNCTION 
 ticker_list = ['ACB', 'TCB', 'TPB', 'VCB', 'BID', 'VPB', 'VIB', 'MBB', 'CTG', 'SHB', 'STB', 'HDB', 'LPB'] #create list with tickers to examine 
 for t in ticker_list: #calling each function of each ticker, by looking through ticker list 
-    analyse_aggregate_feature(t) 
     analyse_single_feature(t) 
 
 max_score['ticker'] = ticker_sample #indicating list & column location 
 max_score['feature'] = feature_sample 
 max_score['score'] = score_sample 
-print(max_score)
 max_score.to_csv('/Users/phuongd/Desktop/file.csv') 
