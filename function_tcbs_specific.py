@@ -12,6 +12,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 
 local = input('Path to save figures? ')
+user_ticker = input('Ticker: ')
 #DataFrame displaying max R2 for each single feature
 max_score = pd.DataFrame() #create DataFrame
 ticker_sample = []  #empty lists to store variables 
@@ -98,14 +99,17 @@ def analyse_single_feature(ticker):
 
         model = LinearRegression() #create model 
         model.fit(x_train, y_train) #fit model 
-        predictions = model.predict(x_train)
-        score = model.score(x_train, y_train) #score train data
+        score = model.score(x_train, y_train) #score train model 
+        score_test = model.score(x_test, y_test) #score test model 
+        predictions = model.predict(x_train) #pass x-train through predict to determine best fit plane 
+        coefs = model.coef_ #calculate coefficient - multiplicative factor of each feature to outcome
+        intercepts = model.intercept_ #calculate intercept
 
         sns.set() 
         plt.figure(figsize = [10,10])
         plt.scatter(x_train, y_train, color='darkcyan', alpha=0.4) 
         plt.plot(x_train, predictions, color='darkorange')
-        plt.title('R^2 of ' + f + ' for ' + ticker)
+        plt.title('R^2 of ' + f + ' for ' + ticker + "\n" + 'y = ' + str(round(coefs[0][0], 5))+'*x' + ' + ' + str(round(intercepts[0],3)))
         plt.xlabel('% Δ ' + f + ' YoY')
         plt.ylabel('Maximum Stocks Potential/Quarter')
         plt.savefig(local+"/"+f+ticker+'.png')
@@ -129,12 +133,14 @@ def analyse_single_feature(ticker):
     score_sample.append(list_result[0][2])
     #print(dataframe) 
 
-#HOW TO CALL FUNCTION 
-ticker_list = ['ACB','TPB', 'VCB', 'BID', 'VIB', 'MBB', 'CTG', 'SHB', 'STB', 'HDB', 'LPB'] #create list with tickers to examine 
-for t in ticker_list: #calling each function of each ticker, by looking through ticker list 
-    analyse_single_feature(t) 
-
+analyse_single_feature(user_ticker)
 max_score['ticker'] = ticker_sample #indicating list & column location 
 max_score['feature'] = feature_sample 
 max_score['score'] = score_sample 
 max_score.to_csv(local+'/file.csv') 
+
+'''HOW TO CALL FUNCTION FOR MULTIPLE VALUES 
+comment variable 'ticker-list' with #
+ticker_list = ['ACB','TPB', 'VCB', 'BID', 'VIB', 'MBB', 'CTG', 'SHB', 'STB', 'HDB', 'LPB'] #create list with tickers to examine 
+for t in ticker_list: #calling each function of each ticker, by looking through ticker list 
+    analyse_single_feature(t) '''
