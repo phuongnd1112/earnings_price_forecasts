@@ -8,6 +8,13 @@ import tcdata.stock.llv.ticker as tcbs_ticker
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 
+local = input('Path to save figures? ')
+#DataFrame displaying max R2 for each single feature
+max_score = pd.DataFrame() #create DataFrame
+ticker_sample = []  #empty lists to store variables 
+feature_sample = [] 
+score_sample = []
+
 # FUNCTION 2: LEAST-SQUARED LINEAR MODEL FOR MULTIPLE FEATURES (DOCUMENTATION SAME AS ABOVE, EXCEPT FOR WHEN TRAINING MODEL) 
 def analyse_aggregate_feature(ticker): 
     # ------ CLEANING AND PROCESSING DATA
@@ -59,42 +66,86 @@ def analyse_aggregate_feature(ticker):
     result = result.sort_values(['Year', 'Quarter'], ascending = True) 
 
     # ------ FA Analysis 
-    fa_df = tcbs.finance_income_statement(ticker, period_type = 0, period = 40)
-    fa_df = fa_df.rename(columns = {'YearReport': 'Year', 'LengthReport':'Quarter'})
-    fa_df = fa_df.sort_values(['Year', 'Quarter'], ascending = True) 
+    fa_df = df = tcbs_ticker.ratio(ticker, period_type=0, period=40)  #call data from database
+    fa_df = fa_df.rename(columns = {'YearReport': 'Year', 'LengthReport':'Quarter'}) #changing column names for convenience 
+    fa_df = fa_df.sort_values(['Year', 'Quarter'], ascending = True) #sort time for better visualisation and fitting into income statement data
 
-
-    fa_list = ['Total_Operating_Income', 'Net_Profit']
+    fa_list = ['revenue', 'operationProfit', 'netProfit', 'provision', 'creditGrowth', 'cash', 'liability', 'equity', 'asset', 'customerCredit', 'priceToEarning', 'priceToBook', 'roe', 'bookValuePerShare', 'earningPerShare', 'profitMargin', 'provisionOnBadDebt', 'badDebtPercentage', 'loanOnDeposit', 'nonInterestOnToi'] #creating a list for the FA numerics we want to examine 
 
     for item in fa_list: 
-        result[item] = (fa_df[item].shift(0) - fa_df[item].shift(4)) / fa_df[item].shift(4) *100 
+        result[item] = (fa_df[item] - fa_df[item].shift(4)) / fa_df[item].shift(4) *100 #finding the YoY differences between each item of FA 
 
-    result = result.dropna() 
-    #print(result) 
-
-    # ------ TRAINING MODEL 
-    features = result[['Net_Profit', 'Total_Operating_Income']] #except of looping through, aggregate features into list 
-    outcomes = result[['Ri (Max/Min)']]
-
-    x_train, x_test, y_train, y_test = train_test_split(features, outcomes, train_size = 0.8) 
-
-    model = LinearRegression() 
-    model.fit(x_train, y_train) 
-    score = model.score(x_train, y_train) 
-    score_test = model.score(x_test, y_test)
+    result.dropna(inplace=True) 
+    print(result.head())
     
-    print(ticker) 
-    print(score) 
+    # ------ TRAINING MODEL 
+    features_list = ['revenue', 'priceToEarning', 'priceToBook', 'roe', 'earningPerShare'] 
+    print(features_list.index('priceToEarning'))
+    for f in features_list: 
+        current_index = features_list.index(f) 
+        next_index = current_index + 1 
+        append_list = features_list[next_index:]
+        if not append_list: 
+            pass
+        else:
+            for f2 in append_list: 
+                features = result[[f, f2]]
+                print(features)
 
-    ticker_list = [] 
-    score_list = []
+                outcomes = result[['Ri (Max/Min)']]
+                x_train, x_test, y_train, y_test = train_test_split(features, outcomes, train_size = 0.8, shuffle=False)  
 
-    total = pd.DataFrame() 
-    ticker_list.append(ticker) 
-    total['ticker'] = ticker_list 
-    print(ticker) 
-    score_list.append(score) 
-    total['score'] = score_list
-    print(score)
+                model = LinearRegression() 
+                model.fit(x_train, y_train) 
+                coefs = model.coef_ 
+                intercepts = model.intercept_
+                print(coefs) 
+                print(intercepts)
+                score = model.score(x_train, y_train) 
+                score_test = model.score(x_test, y_test)
+                predictions = model.predict(x_train)
+                
+                xx_pred, yy_pred = np.meshgrid(x_train[f], x_train[f2]) 
+                model_vis = np.array([xx_pred.flatten(), yy_pred.flatten()]).T
+                predictions = model.predict(model_vis)
+                
+                print(ticker) 
+                print(score) 
 
-    print(total)
+                sns.set() 
+                fig = plt.figure(figsize=[10,10])
+                ax = fig.add_subplot(projection='3d') 
+                ax.scatter(x_train[[f]], x_train[[f2]], y_train, color='forestgreen', alpha = 0.8)  
+                ax.scatter(xx_pred.flatten(), yy_pred.flatten(), predictions, facecolor='red', s=30, edgecolor='red', alpha=0.3) 
+                ax.set_xlabel(str(f) + '\n' + 'y = ' + str(round(coefs[0][0], 5))+'*x' + ' + ' + str(round(intercepts[0],3))) 
+                ax.set_ylabel(str(f2) + '\n' + 'y = ' + str(round(coefs[0][1], 3))+'*x' + ' + ' + str(round(intercepts[0],3)))
+                ax.set_zlabel('Maximum Return Potential in %')
+                ax.set_title('Correlation between Maximum Potential Returns, ' + str(f) + ' and ' + str(f2) + '. \n R-Squared: = ' + str(score))
+                plt.savefig(local+'/'+str(f)+str(f2)+'ticker.png') 
+
+                ticker_list = []
+                feature_list = [] 
+                score_list = []
+
+                total = pd.DataFrame() 
+                ticker_list.append(ticker) 
+                total['ticker'] = ticker_list 
+                print(ticker) 
+                feature = f+f2 
+                feature_list.append(feature) 
+                total['feature'] = feature_list 
+                score_list.append(score) 
+                total['score'] = score_list
+                print(score)
+
+                mx_score = total['score'].max() 
+                list_result = total.loc[total['score'] == mx_score].values.tolist()
+                ticker_sample.append(list_result[0][0])
+                feature_sample.append(list_result[0][1])
+                score_sample.append(list_result[0][2])   
+
+analyse_aggregate_feature('VCB') 
+max_score['ticker'] = ticker_sample #indicating list & column location 
+max_score['feature'] = feature_sample 
+max_score['score'] = score_sample 
+max_score.to_csv(local+'/file_aggregate.csv')
