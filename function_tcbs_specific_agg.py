@@ -15,7 +15,7 @@ from sklearn.model_selection import train_test_split
 
 # ----- PRELIM SET UP 
 local = input('Path to save figures? ')
-user_ticker = input('Ticker: ')
+#user_ticker = input('Ticker: ')
 #DataFrame displaying max R2 for each single feature
 max_score = pd.DataFrame() #create DataFrame
 ticker_sample = []  #empty lists to store variables 
@@ -128,7 +128,7 @@ def analyse_aggregate_feature(ticker):
                 ax.set_ylabel(str(f2) + '\n' + 'y = ' + str(round(coefs[0][1], 3))+'*x' + ' + ' + str(round(intercepts[0],3))) #set y label with regression formula 
                 ax.set_zlabel('Maximum Return Potential in %') #set z label 
                 ax.set_title('Correlation between Maximum Potential Returns, ' + str(f) + ' and ' + str(f2) + '. \n R-Squared: = ' + str(score)) #set title 
-                plt.savefig(local+'/'+str(f)+str(f2)+'ticker.png') #save fig 
+                plt.savefig(local+'/'+str(f)+str(f2)+ticker+'.png') #save fig 
 
                 #lists to numerically store variables 
                 ticker_list = []
@@ -153,14 +153,11 @@ def analyse_aggregate_feature(ticker):
                 feature_sample.append(list_result[0][1])
                 score_sample.append(list_result[0][2])   
 
-analyse_aggregate_feature(user_ticker) 
+ticker_list = ['ACB','TPB', 'VCB'] #create list with tickers to examine 
+for t in ticker_list: #calling each function of each ticker, by looking through ticker list 
+    analyse_aggregate_feature(t) 
+
 max_score['ticker'] = ticker_sample #indicating list & column location 
 max_score['feature'] = feature_sample 
 max_score['score'] = score_sample 
 max_score.to_csv(local+'/file_aggregate.csv') #save table 
-
-'''HOW TO CALL FUNCTION FOR MULTIPLE VALUES 
-comment variable 'ticker-list' with #
-ticker_list = ['ACB','TPB', 'VCB', 'BID', 'VIB', 'MBB', 'CTG', 'SHB', 'STB', 'HDB', 'LPB'] #create list with tickers to examine 
-for t in ticker_list: #calling each function of each ticker, by looking through ticker list 
-    analyse_single_feature(t) '''

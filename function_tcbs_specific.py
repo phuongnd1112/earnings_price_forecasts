@@ -1,6 +1,7 @@
 # ------ SET UP 
 #pip3 install pandas numpy seaborn matplotlib sklearn 
 #pip install pandas numpy seaborn matplotlib sklearn 
+
 import pandas as pd 
 import numpy as np 
 import seaborn as sns 
@@ -12,7 +13,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 
 local = input('Path to save figures? ')
-user_ticker = input('Ticker: ')
+#user_ticker = [input('Ticker (if multiple, enter values separated by comma): ')]
 #DataFrame displaying max R2 for each single feature
 max_score = pd.DataFrame() #create DataFrame
 ticker_sample = []  #empty lists to store variables 
@@ -85,7 +86,7 @@ def analyse_single_feature(ticker):
     print(result.head())
     
     # ------ TRAINING MODEL 
-    features_list = ['revenue', 'operationProfit', 'netProfit', 'provision', 'creditGrowth', 'cash', 'liability', 'equity', 'asset', 'customerCredit', 'priceToEarning', 'priceToBook', 'roe', 'bookValuePerShare', 'earningPerShare', 'profitMargin', 'provisionOnBadDebt', 'badDebtPercentage', 'loanOnDeposit', 'nonInterestOnToi'] #because we are training single feature models, create features list 
+    features_list = ['revenue', 'operationProfit', 'netProfit', 'cash', 'liability', 'equity', 'asset', 'priceToEarning', 'priceToBook', 'roe', 'bookValuePerShare', 'earningPerShare', 'profitMargin', 'provisionOnBadDebt', 'badDebtPercentage', 'loanOnDeposit', 'nonInterestOnToi'] #because we are training single feature models, create features list 
 
     feature_list = [] 
     score_list = [] 
@@ -133,14 +134,12 @@ def analyse_single_feature(ticker):
     score_sample.append(list_result[0][2])
     #print(dataframe) 
 
-analyse_single_feature(user_ticker)
+ticker_list = ['ACB','TPB', 'VCB', 'STB', 'LPB'] #create list with tickers to examine 
+for t in ticker_list: #calling each function of each ticker, by looking through ticker list 
+    analyse_single_feature(t) 
+    
 max_score['ticker'] = ticker_sample #indicating list & column location 
 max_score['feature'] = feature_sample 
 max_score['score'] = score_sample 
 max_score.to_csv(local+'/file.csv') 
 
-'''HOW TO CALL FUNCTION FOR MULTIPLE VALUES 
-comment variable 'ticker-list' with #
-ticker_list = ['ACB','TPB', 'VCB', 'BID', 'VIB', 'MBB', 'CTG', 'SHB', 'STB', 'HDB', 'LPB'] #create list with tickers to examine 
-for t in ticker_list: #calling each function of each ticker, by looking through ticker list 
-    analyse_single_feature(t) '''
