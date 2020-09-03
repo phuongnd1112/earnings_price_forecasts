@@ -23,8 +23,10 @@ score_sample = []
 # FUNCTION 1: LEAST-SQUARED LINEAR MODEL FOR SINGLE FEATURE 
 def analyse_single_feature(ticker): 
     # ------ CLEANING AND PROCESSING DATA
-    df = tcbs_market.stock_prices([ticker], period=2000) #getting data from tcbs_market databse / replaceable with data from yfinance
-    df = df.rename(columns = {'openPriceAdjusted': 'Open', 'closePriceAdjusted':'Price'}) #change column name for convenience
+    dict_data = tcbs_market.stock_prices([ticker], period=2000) #getting data from tcbs_market databse / replaceable with data from yfinance
+    df = pd.DataFrame.from_dict(dict_data[ticker])
+    print(df)
+    #df = df.rename(columns = {'openPriceAdjusted': 'Open', 'closePriceAdjusted':'Price'}) #change column name for convenience
     df['dateReport'] = pd.to_datetime(df['dateReport']) #setting timeseries 
 
     df.reset_index(inplace = True) #index reset 
