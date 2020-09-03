@@ -123,7 +123,8 @@ class optimising_features_score():
         self.ratios_returns = self.ratios_returns.fillna(0) 
         correlation(self.ratios_returns, 0.8) #run data through the first correlation function to eliminate co-linearity
         print(self.ratios_returns)
-        self.ratios = self.ratios_returns.columns.tolist() #this stores new columns for convenient modelling 
+        self.ratios = self.ratios_returns.columns.tolist()
+        self.ratios.remove('dividend_YoYReturn') #this stores new columns for convenient modelling 
 
         ##BALANCE SHEET (see documentation & workflow on ratios list) 
         self.balancesheet_df = tcbs_fin.finance_balance_sheet(user_ticker, period_type=0, period=self.total_period)
@@ -367,7 +368,7 @@ class optimising_features_score():
                 feature_list.append(c) 
                 total['feature'] = feature_list
                 print(c)
-                count_list.append(len(x)) 
+                count_list.append(len(list(x))) 
                 total['features_count'] = count_list 
                 score_list.append(score) 
                 total['score'] = score_list
@@ -417,7 +418,7 @@ class optimising_features_score():
                 feature_list.append(c) 
                 total['feature'] = feature_list
                 print(c)
-                count_list.append(len(x)) 
+                count_list.append(len(list(x))) 
                 total['features_count'] = count_list 
                 score_list.append(score) 
                 total['score'] = score_list
@@ -467,7 +468,7 @@ class optimising_features_score():
                 feature_list.append(c) 
                 total['feature'] = feature_list
                 print(c)
-                count_list.append(len(x)) 
+                count_list.append(len(list(x))) 
                 total['features_count'] = count_list 
                 score_list.append(score) 
                 total['score'] = score_list
