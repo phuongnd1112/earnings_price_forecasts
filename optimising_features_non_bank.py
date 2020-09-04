@@ -109,7 +109,7 @@ class optimising_features_score():
         ##RATIOS LIST (see documentation)
         self.ratio_df = tcbs_ticker.ratio(user_ticker, period_type=0, period=self.total_period) #get data 
         self.ratio_df = self.ratio_df.sort_values(['YearReport', 'LengthReport'], ascending=True) #sort values (see result list for sorting order) 
-        self.ratios_list = ['revenue', 'operationProfit', 'netProfit', 'provision', 'creditGrowth', 'cash', 'liability', 'equity', 'asset', 'customerCredit', 'noStock', 'capitalize', 'roe', 'bookValuePerShare', 'earningPerShare', 'profitMargin', 'provisionOnBadDebt', 'badDebtPercentage', 'loanOnDeposit', 'nonInterestOnToi', 'roa', 'betaIndex'] #create all features list from ratios 
+        self.ratios_list = ['revenue', 'operationProfit', 'GrossProfit', 'netProfit', 'InterestExpense', 'SellingExpense', 'GAExpense', 'preTax', 'ebitOnInterest', 'netPayableOnEquity', 'shortOnLongTermPayable', 'payableOnEquity', 'payable', 'asset', 'liability', 'equity', 'STDebt', 'LTDebt', 'capitalize', 'roe'] #create all features list from ratios 
 
         #here, we are interested only in the YoY return of these features 
         #create empty dataframe as we will only consider the YoY values in our model 
@@ -130,7 +130,7 @@ class optimising_features_score():
         ##BALANCE SHEET (see documentation & workflow on ratios list) 
         self.balancesheet_df = tcbs_fin.finance_balance_sheet(user_ticker, period_type=0, period=self.total_period)
         self.balancesheet_df = self.balancesheet_df.sort_values(['YearReport', 'LengthReport'], ascending=True)
-        self.balance_list = ['cash', 'liability', 'fixedAsset', 'equity', 'asset', 'customerCredit', 'centralBankDeposit', 'otherBankDeposit', 'otherBankLoan', 'StockInvest', 'payableInterest', 'customerLoan', 'netCustomerLoan', 'provision', 'otherAsset', 'oweCentralBank', 'oweOtherBank', 'otherBankCredit', 'pricePaper', 'otherPayable', 'fund', 'undistributedIncome', 'minorShareHolderProfit', 'capital', 'receivableInterest', 'YearReport_BK', 'LengthReport_BK', 'badDebt']
+        self.balance_list = ['cash', 'liability', 'equity', 'shortDebt', 'longDebt', 'shortAsset', 'longAsset', 'debt', 'asset', 'shortInvest', 'shortReceivable', 'inventory', 'longReceivable', 'fixedAsset', 'capital']
 
         self.balance_returns = pd.DataFrame()
         self.balance_returns['YearReport'] = self.balancesheet_df['YearReport']
@@ -145,7 +145,7 @@ class optimising_features_score():
         ##INCOME STATEMENT (see documentation & workflow on ratios list)
         self.income_df = tcbs_fin.finance_income_statement(user_ticker, period_type=0, period=self.total_period) 
         self.income_df = self.income_df.sort_values(['YearReport', 'LengthReport'], ascending=True) 
-        self.income_list = ['Net_Interest_Income', 'Net_Fee_Income', 'Net_Investment_Income', 'Other_Income', 'Total_Operating_Income', 'Operating_Expenses', 'Pre_Provision_Income', 'Provision_Expenses', 'Net_Profit_Before_Tax', 'Net_Profit_After_Tax', 'Net_Profit']
+        self.income_list = ['Revenue', 'Cost_Of_Goods_Sold', 'Gross_Profit', 'Interest_Expenses', 'Operation_Expenses', 'Operating_Profit', 'Pre_Tax_Profit', 'Post_Tax_Profit', 'Net_Income', 'EBITDA']
 
         self.income_returns = pd.DataFrame()
         self.income_returns['YearReport'] = self.income_df['YearReport']
@@ -379,7 +379,7 @@ class optimising_features_score():
                 intercepts_list.append(intercepts) 
                 total['intercept'] = intercepts_list
                 total = total.sort_values('score', ascending=False)
-                total.to_csv(user_path+'/ratio_agg.csv')
+                total.to_csv(user_path+user_ticker+'/ratio_agg.csv')
         
         #if user select 'balance' pool: 
         if features_pool == 'balance': 
@@ -430,7 +430,7 @@ class optimising_features_score():
                 intercepts_list.append(intercepts) 
                 total['intercept'] = intercepts_list
                 total = total.sort_values('score', ascending=False)
-                total.to_csv(user_path+'/balance_agg.csv')
+                total.to_csv(user_path+user_ticker+'/balance_agg.csv')
 
         #if user select 'income' pool: 
         if features_pool == 'income': 
@@ -481,7 +481,7 @@ class optimising_features_score():
                 intercepts_list.append(intercepts) 
                 total['intercept'] = intercepts_list
                 total = total.sort_values('score', ascending=False)
-                total.to_csv(user_path+'/income_agg.csv')
+                total.to_csv(user_path+user_ticker+'/income_agg.csv')
 
 new = optimising_features_score() 
 new.clean_data() 
