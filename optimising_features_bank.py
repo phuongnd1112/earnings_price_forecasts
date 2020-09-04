@@ -15,8 +15,8 @@ from itertools import chain, combinations
 #PART 1 - FETCHING USER INFO AND STRUCTURING 
 user_path = input('Save figures and data to: ') #path to save fig
 user_ticker = input('Ticker: ') #takes in ticker 
-user_mode = input('Simple or Aggregate Model (simple/aggregate)?: ') #choosing between simple and aggregate models (see documentation)
 features_pool = input('Which list would you list to run? (ratios/income/balance): ') #choosing between features list (see documentation) 
+user_mode = input('Simple or Aggregate Model (simple/aggregate)?: ') #choosing between simple and aggregate models (see documentation)
 user_mean = input('Mean Option: ') #choosing between 2 returns indicators (see documentation)
 max_score = pd.DataFrame() #create DataFrame to store master result 
 ticker_sample = []  #empty list to store ticker variables 
