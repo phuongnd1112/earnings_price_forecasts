@@ -3,19 +3,18 @@
 ## Vietnamese Version 
 Kho này chứa những script phân thích lãi tối đa cổ phiếu theo quý, tính quy hồi tuyến tính với các dữ liệu/chỉ số tài chính như doanh thu, LNST, ROE, ROA (tính bởi tăng trưởng cùng kỳ năm trước). 
 
-* API cần được install nếu chạy script của tcbs  
-
 ### Trước khi bấm chạy 
 * Đọc flowchart 
 * ```pip3 install pandas numpy seaborn matplotlib sklearn``` 
 * ```pip install pandas numpy seaborn matplotlib sklearn```
 * Link API cần được install trước khi chạy file TCBS
 
-###Ngành 
+### Ngành 
 Ngân hàng dùng ```optimising_features_bank.py``` <br> 
 Ngành khác dùng ```optimising_features_non_bank.py```
 
-###Chạy 
+### Chạy 
+Vì object và các function đã được viết trong script, người dùng bấm chạy luôn trên terminal/editor. <br> 
 Khi chạy trong terminal, người dùng sẽ được input những chỉ tiêu nhất định theo mong muốn. 
 1. Save figures and data to -> path nơi bảng csv và chart sẽ được lưu vào 
 2. Ticker
