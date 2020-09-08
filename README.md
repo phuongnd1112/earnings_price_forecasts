@@ -22,7 +22,12 @@ Khi chạy trong terminal, người dùng sẽ được input những chỉ tiê
 4. Which list would you list to run? (ratios/income/balance) -> chọn tổ hợp fundamentals  
 5. Mean Option -> chọn tiêu chí "trung bình" Ri hoặc Rq 
 
-### Chi Tiết Code (Chạy cùng nhau)
+### Chi Tiết Tổ Hợp (Ngành ngân hàng)
+1. ```ratios```: ['revenue', 'operationProfit', 'netProfit', 'provision', 'creditGrowth', 'cash', 'liability', 'equity', 'asset', 'customerCredit', 'noStock', 'capitalize', 'roe', 'bookValuePerShare', 'earningPerShare', 'profitMargin', 'provisionOnBadDebt', 'badDebtPercentage', 'loanOnDeposit', 'nonInterestOnToi', 'roa', 'betaIndex'] 
+2. ```balance```: ['cash', 'liability', 'fixedAsset', 'equity', 'asset', 'customerCredit', 'centralBankDeposit', 'otherBankDeposit', 'otherBankLoan', 'StockInvest', 'payableInterest', 'customerLoan', 'netCustomerLoan', 'provision', 'otherAsset', 'oweCentralBank', 'oweOtherBank', 'otherBankCredit', 'pricePaper', 'otherPayable', 'fund', 'undistributedIncome', 'minorShareHolderProfit', 'capital', 'receivableInterest', 'YearReport_BK', 'LengthReport_BK', 'badDebt']
+3. ```income```: ['Net_Interest_Income', 'Net_Fee_Income', 'Net_Investment_Income', 'Other_Income', 'Total_Operating_Income', 'Operating_Expenses', 'Pre_Provision_Income', 'Provision_Expenses', 'Net_Profit_Before_Tax', 'Net_Profit_After_Tax', 'Net_Profit']
+
+### Functions 
 1. ```correlation(dataset=df, threshold=int)```: loại bỏ biến có co-linearity 
 2. ```clean_data()```: dọn data kéo từ database tcbs 
 3. ```generate_quarter_data()```: vì data giá cổ phiểu theo ngày, data phải được process thành data theo quý. Ở đây, ai biến "trung bình" giá được tính. 
